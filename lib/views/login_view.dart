@@ -1,7 +1,9 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:notesapp/firebase_options.dart';
+import 'dart:developer' as devtools;
+
+import 'package:notesapp/routes/constants.dart';
+import 'package:notesapp/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -60,13 +62,21 @@ class _HomePageState extends State<LoginView> {
                 final userCredential = await FirebaseAuth.instance
                     .signInWithEmailAndPassword(
                         email: email, password: password);
-                print(userCredential);
+                devtools.log(userCredential.toString());
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/notes/', (route) => false);
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'user-not-found') {
-                  print("User not found");
+                  await showErrorDialog(context, "User Not Found");
+                  devtools.log("User not found");
                 } else if (e.code == 'wrong-password') {
-                  print("Wrong password");
+                  await showErrorDialog(context, "Wrong Password Entered");
+                  devtools.log("Wrong password");
+                } else {
+                  await showErrorDialog(context, "Error :${e.code}");
                 }
+              } catch (e) {
+                await showErrorDialog(context, "Error :${e.toString()}");
               }
             }),
             child: const Text("Login"),
@@ -74,7 +84,7 @@ class _HomePageState extends State<LoginView> {
           TextButton(
               onPressed: () {
                 Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/register/', (route) => false);
+                    .pushNamedAndRemoveUntil(registerRoute, (route) => false);
               },
               child: const Text("Not Registered Yet, Register Here"))
         ],
