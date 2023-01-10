@@ -1,15 +1,17 @@
 import 'package:notesapp/services/auth/auth_user.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
+import 'package:notesapp/services/auth/firebase_auth_provider.dart';
 
 class AuthService implements AuthProvider {
   final AuthProvider provider;
 
   AuthService(this.provider);
+  factory AuthService.firebase() => AuthService(FirebaseAuthProvider());
 
   @override
   Future<AuthUser> createUser(
       {required String email, required String password}) {
-    provider.createUser(email: email, password: password);
+    return provider.createUser(email: email, password: password);
   }
 
   @override
@@ -17,19 +19,22 @@ class AuthService implements AuthProvider {
 
   @override
   Future<AuthUser> login({required String email, required String password}) {
-    provider.login(email: email, password: password);
-    throw UnimplementedError();
+    return provider.login(email: email, password: password);
   }
 
   @override
   Future<void> logout() {
-    provider.logout();
-    throw UnimplementedError();
+    return provider.logout();
   }
 
   @override
   Future<void> sendEmailVerification() {
-    provider.sendEmailVerification();
-    throw UnimplementedError();
+    return provider.sendEmailVerification();
+  }
+
+  @override
+  Future<void> initialize() {
+    final val = provider.initialize();
+    return provider.initialize();
   }
 }

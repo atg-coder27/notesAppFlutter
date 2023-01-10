@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:notesapp/firebase_options.dart';
 import 'package:notesapp/services/auth/auth_exceptions.dart';
 import 'package:notesapp/services/auth/auth_provider.dart';
 import 'package:notesapp/services/auth/auth_user.dart';
@@ -8,6 +9,12 @@ import 'package:firebase_auth/firebase_auth.dart'
     show FirebaseAuth, FirebaseAuthException;
 
 class FirebaseAuthProvider implements AuthProvider {
+  @override
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
+  }
+
   @override
   Future<AuthUser> createUser(
       {required String email, required String password}) async {
@@ -49,7 +56,6 @@ class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<AuthUser> login(
       {required String email, required String password}) async {
-    // TODO: implement login
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
@@ -61,17 +67,26 @@ class FirebaseAuthProvider implements AuthProvider {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        devtools.log("User not found");
+        throw UserNotFoundAuthException();
       } else if (e.code == 'wrong-password') {
-        devtools.log("Wrong password");
-      } else {}
-    } catch (e) {}
-    throw UnimplementedError();
+        throw WrongPassAuthException();
+      } else {
+        throw GenericAuthException();
+      }
+    } catch (e) {
+      throw GenericAuthException();
+    }
   }
 
   @override
   Future<void> logout() {
     // TODO: implement logout
+    final user = currentUser;
+    if (user != null) {
+      FirebaseAuth.instance.signOut();
+    } else {
+      throw UserNotLoggedInAuthException();
+    }
     throw UnimplementedError();
   }
 
