@@ -34,7 +34,6 @@ class AuthService implements AuthProvider {
 
   @override
   Future<void> initialize() {
-    final val = provider.initialize();
     return provider.initialize();
   }
 }
